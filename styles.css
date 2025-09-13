@@ -1,0 +1,38 @@
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; }
+body { margin: 0; background: #0c0f14; color: #e6e6e6; }
+
+#app { display: flex; flex-direction: column; max-width: 540px; margin: 0 auto; height: 100vh; }
+
+#top-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 8px; position: sticky; top: 0; background: rgba(12,15,20,0.95); backdrop-filter: blur(6px); z-index: 5; }
+.card { background: #1a222d; border: 1px solid #283244; color: #e6e6e6; border-radius: 10px; padding: 8px; min-height: 64px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 6px; }
+.card:disabled { opacity: 0.7; }
+.card-title { font-weight: 600; font-size: 14px; text-align: center; }
+.progress { width: 100%; height: 8px; background: #0e141b; border-radius: 6px; overflow: hidden; border: 1px solid #223045; }
+.progress .bar { height: 100%; width: 0%; background: linear-gradient(90deg,#3bd0ff,#28a3ff); transition: width 0.15s ease; }
+.progress-text { font-size: 12px; text-align: center; opacity: 0.9; }
+
+#game { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8px; }
+#game-canvas { background: #0e141b; width: 100%; height: auto; max-height: calc(100vh - 220px); border-radius: 12px; border: 1px solid #223045; touch-action: none; }
+
+#hud { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-top: 1px solid #16202c; background: #0c0f14; }
+#hud .stats { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; }
+#btn-restart { background: #1f2b38; color: #e6e6e6; border: 1px solid #2a3a4d; border-radius: 8px; padding: 8px 12px; }
+
+#upgrade-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+#upgrade-modal.hidden { display: none; }
+.modal-content { background: #0e141b; border: 1px solid #223045; border-radius: 12px; padding: 12px; width: min(480px, 92vw); }
+.upgrade-list { display: grid; gap: 8px; margin: 10px 0; }
+.modal-content, .modal-content * { color: #e6e6e6; }
+#upgrade-cancel { background: #1f2b38; border: 1px solid #2a3a4d; border-radius: 8px; padding: 8px 12px; color: #e6e6e6; }
+.upgrade-option { border: 1px solid #2a3a4d; border-radius: 10px; padding: 10px; background: #13202c; text-align: left; color: #e6e6e6; cursor: pointer; }
+.upgrade-option.common { border-color: #3a4f66; }
+.upgrade-option.uncommon { border-color: #39c36a; }
+.upgrade-option.rare { border-color: #b065ff; }
+.upgrade-option .title { font-weight: 600; margin-bottom: 4px; }
+.upgrade-option .desc { opacity: 0.9; font-size: 12px; }
+.upgrade-option:hover, .upgrade-option:focus { outline: none; border-color: #53a0ff; }
+
+@media (min-width: 380px) {
+  #game-canvas { max-height: calc(100vh - 200px); }
+}

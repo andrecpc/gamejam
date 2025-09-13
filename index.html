@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Match-3 RPG Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="top-cards">
+      <!-- Карты: Свет / Тьма / Нейтральный -->
+      <button class="card" id="card-light" disabled>
+        <div class="card-title">Свет</div>
+        <div class="progress"><div class="bar" id="bar-light"></div></div>
+        <div class="progress-text" id="bar-light-text">0 / 20</div>
+      </button>
+      <button class="card" id="card-dark" disabled>
+        <div class="card-title">Тьма</div>
+        <div class="progress"><div class="bar" id="bar-dark"></div></div>
+        <div class="progress-text" id="bar-dark-text">0 / 20</div>
+      </button>
+      <button class="card" id="card-neutral" disabled>
+        <div class="card-title">Нейтральный</div>
+        <div class="progress"><div class="bar" id="bar-neutral"></div></div>
+        <div class="progress-text" id="bar-neutral-text">0 / 20</div>
+      </button>
+    </header>
+
+    <main id="game">
+      <canvas id="game-canvas" width="360" height="480"></canvas>
+    </main>
+
+    <footer id="hud">
+      <div class="stats">
+        <span id="stat-hp">HP: 0</span>
+        <span id="stat-armor">Броня: 0</span>
+        <span id="stat-atk">Урон: 0</span>
+        <span id="stat-wave">Волна: 1</span>
+      </div>
+      <button id="btn-restart">Перезапуск</button>
+    </footer>
+  </div>
+
+  <!-- Модалка выбора апгрейда -->
+  <div id="upgrade-modal" class="hidden">
+    <div class="modal-content">
+      <h3>Выберите улучшение</h3>
+      <div id="upgrade-options" class="upgrade-list"></div>
+      <button id="upgrade-cancel">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Короткий README -->
+  <!--
+  Управление:
+  - Свайп/перетаскивание соседних плиток на поле, чтобы делать матчи 3+.
+  - Накапливайте очки в картах Свет/Тьма/Нейтрал. По заполнению нажмите карту, чтобы выбрать 1 из 3 апгрейдов.
+  - Герой автоматически движется по периметру поля; при столкновении с врагом запускается автобой.
+  - Перезапуск возрождает героя с полным HP и сохранёнными апгрейдами.
+
+  Структура:
+  - Canvas рендерит поле и дорожку. UI-карты и HUD — через DOM.
+  - Данные в папке data/* (есть фолбэк по умолчанию в коде на случай CORS при file://).
+  - Сохранение: localStorage (seed, волна, выбранные апгрейды, сложности в минимальном виде).
+  -->
+
+  <script type="module" src="src/main.js"></script>
+  <script>
+    // Helpful hint if opened via file:// where ES modules are blocked by CORS
+    (function(){
+      if (location.protocol === 'file:') {
+        const note = document.createElement('div');
+        note.style.position='fixed'; note.style.inset='0'; note.style.display='flex';
+        note.style.alignItems='center'; note.style.justifyContent='center';
+        note.style.background='rgba(0,0,0,0.7)'; note.style.backdropFilter='blur(4px)';
+        note.style.zIndex='9999'; note.style.textAlign='left';
+        note.innerHTML = '<div style="background:#0e141b;border:1px solid #223045;border-radius:12px;padding:14px;max-width:720px;">'+
+          '<div style="font-weight:600;margin-bottom:6px;font-size:16px;">Нужно запустить через локальный сервер</div>'+
+          '<div style="opacity:0.9;line-height:1.5;font-size:14px;">Браузер блокирует загрузку модульных скриптов по file://.<br/>'+
+          'Откройте терминал в папке проекта и выполните один из вариантов:<br/><br/>'+
+          '<code>python -m http.server 5500</code> → затем откройте <code>http://localhost:5500</code><br/>'+
+          'или <code>npx http-server -p 5500</code> / VSCode Live Server.</div>'+
+          '<div style="margin-top:8px"><button id="dismissFileWarn" style="background:#1f2b38;color:#e6e6e6;border:1px solid #2a3a4d;border-radius:8px;padding:8px 12px;">Понятно</button></div>'+
+          '</div>';
+        document.body.appendChild(note);
+        document.getElementById('dismissFileWarn').onclick = ()=> note.remove();
+      }
+    })();
+  </script>
+</body>
+<style>
+/* Fallback minimal to avoid FOUC in some mobile viewers */
+body{margin:0;background:#0c0f14;color:#e6e6e6;font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif}
+</style>
+</html>

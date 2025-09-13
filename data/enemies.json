@@ -1,0 +1,13 @@
+[
+  {
+    "id":"slime_basic",
+    "name":"Slime",
+    "hp":18,
+    "atk":4,
+    "def":1,
+    "atkSpeed":900,
+    "tags":["beast"],
+    "spells":[{"id":"poison_spit","chance":0.15}]
+  }
+]
+

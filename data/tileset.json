@@ -1,0 +1,11 @@
+{
+  "colors": [
+    {"id":"red","type":"light","sprite":"assets/icons/tile_red.png"},
+    {"id":"yellow","type":"light","sprite":"assets/icons/tile_yellow.png"},
+    {"id":"blue","type":"dark","sprite":"assets/icons/tile_blue.png"},
+    {"id":"purple","type":"dark","sprite":"assets/icons/tile_purple.png"},
+    {"id":"green","type":"neutral","sprite":"assets/icons/tile_green.png"}
+  ],
+  "boardSize": 12
+}
+
