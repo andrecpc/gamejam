@@ -34,3 +34,14 @@ Hero and enemies assets
 Tech
 - HTML/CSS + Vanilla JS modules, Canvas rendering for board/path, DOM for UI.
 - Seeded PRNG for reproducibility; simple localStorage save.
+
+Card icons
+- Add optional icons for the top cards:
+  - `assets/icons/card_light.png`
+  - `assets/icons/card_neutral.png`
+  - `assets/icons/card_dark.png`
+  - Recommended aspect 1:1 (64–128 px PNG). The UI scales them automatically.
+
+Companions and effects
+- Wolf companion: `assets/units/wolf.png` (any size, scaled by the game).
+- Fire orb effect: `assets/effects/fire_orb.png` (square 1:1 PNG).

@@ -9,21 +9,30 @@
 <body>
   <div id="app">
     <header id="top-cards">
-      <!-- Карты: Свет / Тьма / Нейтральный -->
+      <!-- Порядок: Свет → Нейтральный → Тьма -->
       <button class="card" id="card-light" disabled>
-        <div class="card-title">Свет</div>
+        <div class="card-head">
+          <img class="card-icon" data-src="assets/icons/card_light.png" alt="light" style="display:none"/>
+          <div class="card-title">Свет</div>
+        </div>
         <div class="progress"><div class="bar" id="bar-light"></div></div>
         <div class="progress-text" id="bar-light-text">0 / 20</div>
       </button>
-      <button class="card" id="card-dark" disabled>
-        <div class="card-title">Тьма</div>
-        <div class="progress"><div class="bar" id="bar-dark"></div></div>
-        <div class="progress-text" id="bar-dark-text">0 / 20</div>
-      </button>
       <button class="card" id="card-neutral" disabled>
-        <div class="card-title">Нейтральный</div>
+        <div class="card-head">
+          <img class="card-icon" data-src="assets/icons/card_neutral.png" alt="neutral" style="display:none"/>
+          <div class="card-title">Нейтральный</div>
+        </div>
         <div class="progress"><div class="bar" id="bar-neutral"></div></div>
         <div class="progress-text" id="bar-neutral-text">0 / 20</div>
+      </button>
+      <button class="card" id="card-dark" disabled>
+        <div class="card-head">
+          <img class="card-icon" data-src="assets/icons/card_dark.png" alt="dark" style="display:none"/>
+          <div class="card-title">Тьма</div>
+        </div>
+        <div class="progress"><div class="bar" id="bar-dark"></div></div>
+        <div class="progress-text" id="bar-dark-text">0 / 20</div>
       </button>
     </header>
 
@@ -38,6 +47,7 @@
         <span id="stat-atk">Урон: 0</span>
         <span id="stat-wave">Волна: 1</span>
       </div>
+      <button id="btn-help">Как играть</button>
       <button id="btn-restart">Перезапуск</button>
     </footer>
   </div>
@@ -88,6 +98,17 @@
       }
     })();
   </script>
+
+  <!-- Модалка "Как играть" -->
+  <div id="help-modal" class="hidden">
+    <div class="modal-content">
+      <button id="help-close" class="modal-close" aria-label="Закрыть">×</button>
+      <h3>Как играть</h3>
+      <div class="help-body">
+        <p>Матчите соседние плитки свайпом. Совпадения 3+ дают очки на карты: Свет, Нейтральная, Тьма. Когда шкала карты заполнена — нажмите её и выберите одно из 3 улучшений. Герой идёт по круговой дорожке и автоматически сражается с врагами на пути. Усиливайте героя улучшениями, чтобы победить всех врагов и завершить круг.</p>
+      </div>
+    </div>
+  </div>
 </body>
 <style>
 /* Fallback minimal to avoid FOUC in some mobile viewers */

@@ -15,10 +15,14 @@ export function setupUI(state, { onCardClick, onRestart, onPickUpgrade }) {
     armor: document.getElementById('stat-armor'),
     atk: document.getElementById('stat-atk'),
     wave: document.getElementById('stat-wave'),
+    // moves hidden / removed
     restart: document.getElementById('btn-restart'),
+    help: document.getElementById('btn-help'),
     modal: document.getElementById('upgrade-modal'),
     modalList: document.getElementById('upgrade-options'),
     modalCancel: document.getElementById('upgrade-cancel'),
+    helpModal: document.getElementById('help-modal'),
+    helpClose: document.getElementById('help-close'),
   };
 
   el.lightBtn.addEventListener('click', ()=> onCardClick('light'));
@@ -26,6 +30,9 @@ export function setupUI(state, { onCardClick, onRestart, onPickUpgrade }) {
   el.neutralBtn.addEventListener('click', ()=> onCardClick('neutral'));
   el.restart.addEventListener('click', onRestart);
   el.modalCancel.addEventListener('click', ()=> hideUpgradeModal());
+  if (el.help) el.help.addEventListener('click', ()=> showHelp());
+  if (el.helpClose) el.helpClose.addEventListener('click', ()=> hideHelp());
+  if (el.helpModal) el.helpModal.addEventListener('click', (e)=> { if (e.target===el.helpModal) hideHelp(); });
 
   function updateCards(){
     const cs = state.cards;
@@ -45,6 +52,7 @@ export function setupUI(state, { onCardClick, onRestart, onPickUpgrade }) {
     el.armor.textContent = `Броня: ${state.hero.def}`;
     el.atk.textContent = `Урон: ${state.hero.atk}`;
     el.wave.textContent = `Волна: ${state.wave}`;
+    // moves hidden
   }
 
   function showUpgradeModal(options){
@@ -67,6 +75,8 @@ export function setupUI(state, { onCardClick, onRestart, onPickUpgrade }) {
 
   function hideUpgradeModal(){ el.modal.classList.add('hidden'); }
 
+  function showHelp(){ if (el.helpModal) el.helpModal.classList.remove('hidden'); }
+  function hideHelp(){ if (el.helpModal) el.helpModal.classList.add('hidden'); }
+
   return { updateCards, updateHUD, showUpgradeModal, hideUpgradeModal };
 }
-

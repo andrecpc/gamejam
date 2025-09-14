@@ -29,6 +29,23 @@
       {"target":"hero","stat":"atk","op":"+","value":7},
       {"target":"hero","stat":"maxHp","op":"+","value":-5}
     ]
-  }
+  },
+  {"id":"def_plus_2","rarity":"common","pool":"light","text":"Герой: +2 Броня","effects":[{"target":"hero","stat":"def","op":"+","value":2}]},
+  {"id":"hp_plus_10","rarity":"uncommon","pool":"light","text":"Герой: +10 HP","effects":[{"target":"hero","stat":"maxHp","op":"+","value":10}]},
+  {"id":"atk_speed_up","rarity":"uncommon","pool":"neutral","text":"Герой: Скорость атаки +15%","effects":[{"target":"hero","stat":"atkSpeed","op":"*","value":0.85}]},
+  {"id":"crit_chance","rarity":"uncommon","pool":"dark","text":"Герой: +7% шанс крита","effects":[{"target":"hero","stat":"chance","op":"+","value":0.07}]},
+  {"id":"crit_mult","rarity":"uncommon","pool":"dark","text":"Герой: множитель крита ×1.2","effects":[{"target":"hero","stat":"mult","op":"*","value":1.2}]},
+  {"id":"lifesteal_small","rarity":"rare","pool":"dark","text":"Кровопийца: вампиризм 10%","effects":[{"target":"hero","stat":"lifeSteal","op":"+","value":0.10}]},
+  {"id":"thorns_small","rarity":"uncommon","pool":"neutral","text":"Шипы: отражение 25% урона","effects":[{"target":"hero","stat":"thorns","op":"+","value":0.25}]},
+  {"id":"shield_def","rarity":"common","pool":"light","text":"Выносливость: +1 Броня","effects":[{"target":"hero","stat":"def","op":"+","value":1}]},
+  {"id":"atk_plus_4","rarity":"uncommon","pool":"dark","text":"Герой: +4 Atk","effects":[{"target":"hero","stat":"atk","op":"+","value":4}]},
+  {"id":"hp_regen","rarity":"uncommon","pool":"light","text":"Регенерация: +1 HP при проходе клетки","effects":[{"target":"path","type":"add_tile","tile":"heal_2"}]},
+  {"id":"wolf_companion","rarity":"uncommon","pool":"neutral","text":"Призыв волка: +2 доп. урона","effects":[{"target":"hero","type":"add_companion","companion":"wolf","count":1}]},
+  {"id":"fire_orb","rarity":"rare","pool":"dark","text":"Огненный шар: периодический урон","effects":[{"target":"hero","type":"add_aura","aura":"fire_orb","dmg":1,"interval":600}]},
+  {"id":"iron_skin","rarity":"rare","pool":"light","text":"Железная кожа: броня ×1.3","effects":[{"target":"hero","stat":"def","op":"*","value":1.3}]},
+  {"id":"swift_blows","rarity":"common","pool":"neutral","text":"Проворство: скорость атаки +10%","effects":[{"target":"hero","stat":"atkSpeed","op":"*","value":0.9}]},
+  {"id":"hardened","rarity":"common","pool":"light","text":"+4 HP","effects":[{"target":"hero","stat":"maxHp","op":"+","value":4}]},
+  {"id":"vigor","rarity":"uncommon","pool":"neutral","text":"+6 HP, +1 Atk","effects":[{"target":"hero","stat":"maxHp","op":"+","value":6},{"target":"hero","stat":"atk","op":"+","value":1}]},
+  {"id":"blade_oil","rarity":"uncommon","pool":"dark","text":"Масло клинка: +2 Atk, −1 Броня","effects":[{"target":"hero","stat":"atk","op":"+","value":2},{"target":"hero","stat":"def","op":"+","value":-1}]},
+  {"id":"battle_hardened","rarity":"rare","pool":"neutral","text":"Боевой дух: +10 HP, +2 Броня","effects":[{"target":"hero","stat":"maxHp","op":"+","value":10},{"target":"hero","stat":"def","op":"+","value":2}]}
 ]
-

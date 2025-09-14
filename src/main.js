@@ -65,18 +65,30 @@ async function boot() {
   state.path = buildPerimeterPath(state.boardSize, layout.cell, layout.offX, layout.offY);
 
   // Place a few enemies on path
-  const enemyBase = enemiesData[0];
   const enemyEvery = Math.max(6, Math.floor(state.path.cells.length/4));
   state.path.enemies = new Map(); // index -> enemyData
+  const pattern = [];
+  const choices = enemiesData; // rotate types along the path
+  let ci = 0;
   for (let i=enemyEvery; i<state.path.cells.length; i+=enemyEvery){
-    state.path.enemies.set(i, enemyBase);
-    // Preload possible enemy sprite by id
-    images.load(`assets/units/${enemyBase.id}.png`);
+    const eData = choices[ci % choices.length]; ci++;
+    state.path.enemies.set(i, eData);
+    images.load(`assets/units/${eData.id}.png`);
+    pattern.push({ index: i, enemyId: eData.id, base: eData });
   }
-  // Save spawn pattern for respawns on hero death
-  state.path.spawnPattern = { every: enemyEvery, base: enemyBase };
+  state.path.spawnPattern = { indices: pattern };
   // Preload hero sprite
   images.load('assets/units/hero.png');
+  // Optional effects sprites
+  images.load('assets/units/wolf.png');
+  images.load('assets/effects/fire_orb.png');
+
+  // Preload tile sprites if provided in tileset
+  const tileSprites = {};
+  for (const c of state.colors){
+    if (c.sprite){ tileSprites[c.id] = c.sprite; images.load(c.sprite); }
+  }
+  state.tileSprites = tileSprites;
 
   // UI
   const ui = setupUI(state, {
@@ -96,6 +108,11 @@ async function boot() {
       state.save();
     }
   });
+
+  // Try to load optional card icons without 404 console noise
+  tryLoadCardIcon('assets/icons/card_light.png', document.querySelector('#card-light .card-icon'));
+  tryLoadCardIcon('assets/icons/card_neutral.png', document.querySelector('#card-neutral .card-icon'));
+  tryLoadCardIcon('assets/icons/card_dark.png', document.querySelector('#card-dark .card-icon'));
 
   // Input: swipe / drag adjacent tiles
   const animator = createBoardAnimator(board, layout);
@@ -147,7 +164,7 @@ async function boot() {
   requestAnimationFrame(frame);
 }
 
-function makeBoardInput(canvas, getLayout, state, board, ui, animator){
+  function makeBoardInput(canvas, getLayout, state, board, ui, animator){
   let touchId = null;
   let start = null; // {x,y, gx,gy}
   const threshold = 12; // px in canvas space
@@ -160,7 +177,7 @@ function makeBoardInput(canvas, getLayout, state, board, ui, animator){
   }
 
   function onStart(x,y, id){
-    if (animator.busy) return;
+    if (animator.busy || state.levelCompleted) return;
     const {gx, gy} = canvasToGrid(x,y);
     if (gx<0||gy<0||gx>=board.size||gy>=board.size) return;
     start = { x, y, gx, gy };
@@ -186,7 +203,7 @@ function makeBoardInput(canvas, getLayout, state, board, ui, animator){
         state.addCardProgress('dark', gains.dark||0);
         state.addCardProgress('neutral', gains.neutral||0);
         state.save();
-        ui.updateCards();
+        ui.updateCards(); ui.updateHUD();
       }
     });
     start = null; touchId=null;
@@ -245,8 +262,8 @@ function render(ctx, layout, state, board, animator, images){
     }
   }
 
-  // Draw animated tiles
-  animator.draw(ctx, layout);
+  // Draw animated tiles (with sprites if available)
+  animator.draw(ctx, layout, images, state.tileSprites||{});
 
   // Path background (lighter to improve sprite contrast)
   ctx.strokeStyle = '#5c7ea3';
@@ -290,6 +307,33 @@ function render(ctx, layout, state, board, animator, images){
       ctx.arc(p.cx, p.cy, Math.max(3, cell*0.22), 0, Math.PI*2);
       ctx.fill();
     }
+    // Companion wolf visual — runs alongside the hero (no orbit)
+    if (state.hero.companions && state.hero.companions.wolf>0){
+      const img = images.get('assets/units/wolf.png');
+      const size = cell*0.6;
+      const nextIdx = (state.path.heroIndex + 1) % state.path.cells.length;
+      const pn = state.path.cells[nextIdx];
+      // Tangent vector hero->next, then perpendicular normal to place wolf at the side
+      let vx = pn.cx - p.cx; let vy = pn.cy - p.cy; const len = Math.hypot(vx,vy)||1; vx/=len; vy/=len;
+      const nx = -vy, ny = vx; // left normal
+      const offset = cell*0.7;
+      const wobble = Math.sin(performance.now()/300)*cell*0.06; // slight breathing
+      const wx = p.cx + nx*offset;
+      const wy = p.cy + ny*offset + wobble;
+      if (img) ctx.drawImage(img, wx - size/2, wy - size/2, size, size);
+      else { ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(wx, wy, Math.max(3, cell*0.18), 0, Math.PI*2); ctx.fill(); }
+    }
+    // Fire orb visual
+    if (state.hero.auras && state.hero.auras.fire_orb){
+      const img = images.get('assets/effects/fire_orb.png');
+      const size = cell*0.4;
+      const angle = (performance.now()/800)%1 * Math.PI*2;
+      const r = cell*0.7;
+      const ox = p.cx + Math.cos(angle) * r;
+      const oy = p.cy + Math.sin(angle) * r;
+      if (img) ctx.drawImage(img, ox - size/2, oy - size/2, size, size);
+      else { ctx.fillStyle = '#ff7b39'; ctx.beginPath(); ctx.arc(ox, oy, Math.max(3, cell*0.14), 0, Math.PI*2); ctx.fill(); }
+    }
   }
 
   // If in combat, draw overlay HP bars
@@ -310,6 +354,8 @@ function render(ctx, layout, state, board, animator, images){
     ctx.fillText('Уровень пройден', ctx.canvas.width/2, ctx.canvas.height/2);
     ctx.restore();
   }
+
+  // out-of-moves overlay removed
 }
 
 function roundRect(ctx, x,y,w,h,r){
@@ -459,31 +505,19 @@ function createBoardAnimator(board, layout){
   function simpleDelay(ms){ let t=0; return { update(dt){ t+=dt; }, done(){ return t>=ms; } }; }
 
   function update(dt){ if (!busy) return; if (!step) advance(); if (!step) return; step.update(dt); if (step.done()) advance(); }
-  function draw(ctx, layout){
+  function draw(ctx, layout, images, tileSprites){
     for (const t of tiles.values()){
-      ctx.save();
-      ctx.globalAlpha = t.alpha;
       const {cx, cy} = {cx:t.px, cy:t.py};
       const s = Math.max(0.6, t.scale||1);
-      const w = layout.cell - 2;
-      const size = w * s;
-      ctx.fillStyle = colorForId(t.id);
-      roundRect(ctx, cx - size/2, cy - size/2, size, size, Math.min(10, size*0.18));
-      ctx.fill();
-      ctx.restore();
+      const size = (layout.cell - 2) * s;
+      drawTile(ctx, cx, cy, size, t.id, images, tileSprites);
     }
     // Draw floating tiles (moving/spawning)
     for (const t of floating){
-      ctx.save();
-      ctx.globalAlpha = t.alpha ?? 1;
       const {cx, cy} = {cx:t.px, cy:t.py};
       const s = Math.max(0.6, t.scale||1);
-      const w = layout.cell - 2;
-      const size = w * s;
-      ctx.fillStyle = colorForId(t.id);
-      roundRect(ctx, cx - size/2, cy - size/2, size, size, Math.min(10, size*0.18));
-      ctx.fill();
-      ctx.restore();
+      const size = (layout.cell - 2) * s;
+      drawTile(ctx, cx, cy, size, t.id, images, tileSprites, t.alpha);
     }
   }
 
@@ -508,4 +542,28 @@ function createImageCache(){
     load(url){ if (cache.has(url)) return; const img = new Image(); img.src = url; cache.set(url, null); img.onload=()=>cache.set(url,img); img.onerror=()=>cache.delete(url); },
     get(url){ return cache.get(url)||null; }
   };
+}
+
+function drawTile(ctx, cx, cy, size, id, images, tileSprites, alpha=1){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  const sprite = tileSprites && tileSprites[id];
+  const img = sprite ? images.get(sprite) : null;
+  if (img){
+    ctx.drawImage(img, cx - size/2, cy - size/2, size, size);
+  } else {
+    ctx.fillStyle = colorForId(id);
+    roundRect(ctx, cx - size/2, cy - size/2, size, size, Math.min(10, size*0.18));
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function tryLoadCardIcon(url, imgEl){
+  if (!imgEl) return;
+  fetch(url, { method: 'GET' }).then(r=>{
+    if (r.ok){
+      imgEl.src = url; imgEl.style.display = 'inline-block';
+    }
+  }).catch(()=>{});
 }

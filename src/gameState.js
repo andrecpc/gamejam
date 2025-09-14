@@ -44,17 +44,23 @@ export class GameState {
       id: 'hero_1', kind: 'hero',
       maxHp: 30, hp: 30, atk: 6, def: 2, atkSpeed: 800,
       crit: { chance: 0.1, mult: 1.5 },
+      lifeSteal: 0, thorns: 0,
+      companions: {}, // e.g., { wolf: 1 }
+      auras: {},      // e.g., { fire_orb: { dmg: 1, interval: 600 } }
       spells: [], effects: [],
     };
 
     this.wave = saved.wave ?? 1;
     this.upgradesTaken = saved.upgradesTaken ?? [];
 
+    // Moves system removed
+
     // Path state (set in path module)
     this.path = null; // { cells: [...], specials: Map, heroIndex }
     this.inCombat = false;
     this.currentEnemy = null;
     this.levelCompleted = false;
+    this.outOfMoves = false;
   }
 
   addCardProgress(type, amount) {
@@ -79,15 +85,28 @@ export class GameState {
   applyUpgradeEffect(effect) {
     // Minimal effect application
     if (effect.target === 'hero') {
-      const stat = effect.stat;
-      const op = effect.op;
-      const val = effect.value;
-      if (op === '+') {
-        if (stat === 'maxHp') {
-          this.hero.maxHp = Math.max(1, (this.hero.maxHp + val));
-          this.hero.hp = Math.min(this.hero.hp, this.hero.maxHp);
-        } else if (stat in this.hero) {
-          this.hero[stat] = Math.max(0, (this.hero[stat] + val));
+      if (effect.type === 'add_companion' && effect.companion === 'wolf') {
+        const c = this.hero.companions; c.wolf = (c.wolf||0) + (effect.count||1);
+      } else if (effect.type === 'add_aura' && effect.aura === 'fire_orb') {
+        this.hero.auras.fire_orb = { dmg: effect.dmg||1, interval: effect.interval||600 };
+      } else if (effect.type === 'set_flag') {
+        this.hero[effect.flag] = effect.value;
+      } else {
+        const stat = effect.stat;
+        const op = effect.op;
+        const val = effect.value;
+        if (op === '+') {
+          if (stat === 'maxHp') {
+            this.hero.maxHp = Math.max(1, (this.hero.maxHp + val));
+            this.hero.hp = Math.min(this.hero.hp, this.hero.maxHp);
+          } else if (stat in this.hero) {
+            this.hero[stat] = Math.max(0, (this.hero[stat] + val));
+          } else if (stat && stat in this.hero.crit) {
+            this.hero.crit[stat] = Math.max(0, this.hero.crit[stat] + val);
+          }
+        } else if (op === '*') {
+          if (stat in this.hero) { this.hero[stat] = Math.max(0, this.hero[stat] * val); }
+          else if (stat in this.hero.crit) { this.hero.crit[stat] *= val; }
         }
       }
     } else if (effect.target === 'path') {
@@ -113,4 +132,6 @@ export class GameState {
     };
     localStorage.setItem('m3rpg_save', JSON.stringify(data));
   }
+
+  useMove() { /* moves disabled */ }
 }

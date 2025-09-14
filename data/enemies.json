@@ -8,6 +8,25 @@
     "atkSpeed":900,
     "tags":["beast"],
     "spells":[{"id":"poison_spit","chance":0.15}]
+  },
+  {
+    "id":"skeleton_warrior",
+    "name":"Skeleton",
+    "hp":26,
+    "atk":6,
+    "def":2,
+    "atkSpeed":950,
+    "tags":["undead"],
+    "spells":[{"id":"bone_shield","chance":0.1}]
+  },
+  {
+    "id":"bat_fast",
+    "name":"Bat",
+    "hp":14,
+    "atk":3,
+    "def":0,
+    "atkSpeed":600,
+    "tags":["beast","flying"],
+    "spells":[{"id":"bleed","chance":0.12}]
   }
 ]
-

@@ -13,28 +13,24 @@ export async function loadUpgrades() {
 }
 
 export function sampleUpgrades(prng, all, pool, rareChance=0.1) {
-  // Mix 70% own pool and 30% neutral/common pool
-  const poolItems = all.filter(u => u.pool === pool);
-  const misc = all.filter(u => u.pool === 'neutral');
-  const candidates = [...poolItems, ...misc];
-  const rarityWeight = (rarity) => ({
-    common: 0.6,
-    uncommon: 0.3,
-    rare: rareChance,
-  })[rarity] || 0.1;
+  // 70% from the pool, 30% from neutral pool
+  const own = all.filter(u => u.pool === pool);
+  const neutral = all.filter(u => u.pool === 'neutral');
+  const rarityWeight = (rarity) => ({ common: 0.6, uncommon: 0.3, rare: rareChance })[rarity] || 0.1;
+
+  function pickOne(arr, used){
+    const candidates = arr.filter(u => !used.has(u.id));
+    if (candidates.length===0) return null;
+    return choiceWeighted(prng, candidates, u => rarityWeight(u.rarity));
+  }
 
   const picks = [];
   const used = new Set();
-  const tries = 30;
-  for (let n=0;n<3;n++){
-    let best = null;
-    for (let t=0;t<tries;t++){
-      const cand = candidates[Math.floor(prng()*candidates.length)];
-      if (!cand || used.has(cand.id)) continue;
-      const weight = rarityWeight(cand.rarity);
-      if (best==null || prng() < weight) best = cand;
-    }
-    if (best) { picks.push(best); used.add(best.id); }
+  for (let i=0;i<3;i++){
+    const fromOwn = prng() < 0.7;
+    let p = fromOwn ? pickOne(own, used) : pickOne(neutral, used);
+    if (!p) p = pickOne(own.concat(neutral), used);
+    if (p){ picks.push(p); used.add(p.id); }
   }
   return picks;
 }
@@ -43,4 +39,3 @@ export function applyUpgrade(state, upgrade) {
   for (const eff of upgrade.effects) state.applyUpgradeEffect(eff);
   state.upgradesTaken.push(upgrade.id);
 }
-
